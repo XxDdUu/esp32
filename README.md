@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # esp32
 
 This template should help get you started developing with Vue 3 in Vite.
@@ -40,3 +41,6 @@ npm run dev
 ```sh
 npm run build
 ```
+=======
+# esp32
+>>>>>>> 1b9c94d87f5a1aee3f373f8c1e9c88f235388ac8
