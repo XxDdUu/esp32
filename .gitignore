@@ -41,6 +41,7 @@ __screenshots__/
 /firebase-debug.log
 /firebase-debug.*.log
 .firebaserc
+.firebase/
 
 # Firebase Hosting
 /firebase.json
