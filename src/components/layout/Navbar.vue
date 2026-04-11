@@ -2,11 +2,14 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { onUserChanged, logout } from "@/firebase/auth";
+import type { User } from "firebase/auth";
+import { Dropdown, DropdownItem } from "@/components/ui/dropdown";
+import type { DefineComponent } from "vue";
+
 
 const router = useRouter();
 
-const user = ref<any>(null);
-const showMenu = ref(false);
+const user = ref<User | null>(null);
 
 const go = (path: string) => router.push(path);
 
@@ -18,7 +21,6 @@ onMounted(() => {
 
 const handleLogout = async () => {
   await logout();
-  showMenu.value = false;
   router.push("/auth");
 };
 </script>
@@ -46,37 +48,31 @@ const handleLogout = async () => {
       <button 
         v-if="!user"
         @click="go('/auth')"
-        class="bg-blue-600 px-4 py-1.5 rounded-lg"
-      >
+        class="absolute mt-2 w-40 bg-white text-black rounded-lg shadow-lg" >
         Login
       </button>
 
       <!-- 👇 LOGIN -->
-      <div v-else class="relative">
-        <img
-          :src="user.photoURL"
-          class="w-8 h-8 rounded-full cursor-pointer border"
-          @click="showMenu = !showMenu"
-        />
+        <div v-else>
+        <Dropdown align="right">  
+          <!-- Trigger -->
+          <template #trigger>
+            <img
+              :src="user.photoURL || undefined"
+              class="w-8 h-8 rounded-full cursor-pointer border"
+            />
+          </template>
 
-        <!-- DROPDOWN -->
-        <div
-          v-if="showMenu"
-          class="absolute right-0 mt-2 w-40 bg-white text-black rounded-lg shadow-lg"
-        >
-          <div class="px-4 py-2 text-sm border-b">
+          <!-- Content -->
+          <div class="px-4 py-2 text-sm border-b ">
             {{ user.displayName }}
           </div>
 
-          <button
-            @click="handleLogout"
-            class="w-full text-left px-4 py-2 hover:bg-gray-100"
-          >
+          <DropdownItem @click="handleLogout">
             Logout
-          </button>
-        </div>
+          </DropdownItem>
+        </Dropdown>
       </div>
-
     </div>
   </nav>
 </template>

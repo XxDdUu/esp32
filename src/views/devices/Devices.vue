@@ -5,14 +5,17 @@ import { getCurrentUser, onUserChanged } from "@/firebase/auth";
 import InputField from "@/components/ui/InputField.vue";
 import { onMounted, onBeforeUnmount } from "vue";
 import { getStatus } from "@/utils/device";
+import { useRouter } from "vue-router";
+import type { Device } from "@/types/session";
+import type { User } from "firebase/auth";
 
-
+const router = useRouter();
 const deviceId = ref("");
 const deviceKey = ref("");
-const devices = ref<any[]>([]);
+const devices = ref<Device[]>([]);
 const loading = ref(true);
 const message = ref("");
-const user = ref<any>(null);
+const user = ref<User | null>(null);
 let unsubscribeDevices: (() => void) | null = null;
 
 
@@ -81,6 +84,10 @@ const handleAddDevice = async () => {
     message.value = "Error adding device";
   }
 };
+const handleDeviceClick = (deviceId: string) => {
+  router.push({ name: "tracking", params: { id: deviceId } });
+};
+
 </script>
 
 <template>
@@ -123,7 +130,8 @@ const handleAddDevice = async () => {
       <div
         v-for="d in devices"
         :key="d.id"
-        class="flex justify-between items-center p-4 border rounded-lg bg-white shadow-sm"
+        class="flex justify-between items-center p-4 border rounded-lg bg-white shadow-sm cursor-pointer"
+        @click="handleDeviceClick(d.id)"
       >
         <div>
           <div class="font-semibold">{{ d.id }}</div>
@@ -136,7 +144,7 @@ const handleAddDevice = async () => {
         </div>
 
         <button
-          @click="handleDelete(d.id)"
+          @click.stop="handleDelete(d.id)"
           class="text-red-500 hover:text-red-700"
         >
           Delete

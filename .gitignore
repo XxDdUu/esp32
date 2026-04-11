@@ -41,7 +41,8 @@ __screenshots__/
 /firebase-debug.log
 /firebase-debug.*.log
 .firebaserc
-.firebase/
+./firebase/firebase.ts
+
 
 # Firebase Hosting
 /firebase.json
@@ -57,7 +58,7 @@ hosting/.cache
 /firebase-*.zip
 /.firebase/
 /emulator-ui/
-
+firebase.ts
 
 # Environment files (local configs)
 /.env.*

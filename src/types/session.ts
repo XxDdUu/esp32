@@ -17,3 +17,10 @@ export interface Session {
   metrics: Metrics;
   data: DataPoint[];
 }
+export interface Device {
+  id: string;
+  owner: string;
+  key: string;
+  createdAt: number;
+  lastSeen?: number;
+}

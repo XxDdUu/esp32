@@ -1,10 +1,11 @@
 import { ref, set, off } from "firebase/database";
 import { db } from "./firebase";
 import { onValue, remove } from "firebase/database";
+import type { Device } from "../types/session";
 
 export const addDevice = async (
   deviceId: string,
-  data: any
+  data: Omit<Device, "id">
 ) => {
   const deviceRef = ref(db, `devices/${deviceId}`);
   await set(deviceRef, data);
@@ -12,7 +13,7 @@ export const addDevice = async (
 
 export const listenDevices = (
   userId: string,
-  callback: (devices: any[]) => void
+  callback: (devices: Device[]) => void
 ): (() => void) => { 
   const devicesRef = ref(db, "devices");
 
@@ -20,8 +21,8 @@ export const listenDevices = (
     const val = snapshot.val();
     if (!val) return;
 
-    const list = Object.entries(val)
-      .map(([id, data]: any) => ({
+    const list = Object.entries(val as Record<string, Omit<Device, "id">>)
+      .map(([id, data]) => ({
         id,
         ...data,
       }))

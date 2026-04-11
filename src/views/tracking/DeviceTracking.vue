@@ -7,28 +7,40 @@ import FlowChart from "@/components/FlowChart.vue";
 
 const { sessions } = useSessions();
 
-const recent = computed(() => sessions.value.slice(-50));
-
-const flowData = computed(() =>
+const recent = computed(() => [...sessions.value].reverse().slice(0, 50));
+const chartData = computed(() =>
   sessions.value.flatMap(s =>
-    s.data.map(p => p.flow)
+    s.data.map(p => ({
+      x: p.t,
+      y: p.flow
+    }))
   )
 );
 
-
-// 👉 stats đơn giản
-const avgFlow = computed(() =>
-  flowData.value.reduce((a, b) => a + b, 0) / (flowData.value.length || 1)
+const flowData = computed(() =>
+  chartData.value.map(p => p.y)
 );
 
-const peakFlow = computed(() =>
-  Math.max(...flowData.value, 0)
-);
+const avgFlow = computed(() => {
+  const arr = chartData.value;
+  if (!arr.length) return 0;
+
+  return arr.reduce((sum, p) => sum + p.y, 0) / arr.length;
+});
+
+const peakFlow = computed(() => {
+  const arr = chartData.value;
+  if (!arr.length) return 0;
+
+  return Math.max(...arr.map(p => p.y));
+}); 
+
+
 </script>
 
 <template>
   <div class="container">
-    <h1>📊 Lung Dashboard</h1>
+    <h1 class="text-5xl font-bold mb-4">📊 Lung Dashboard 仪表板</h1>
 
     <!-- METRICS -->
     <div class="cards">
@@ -45,7 +57,9 @@ const peakFlow = computed(() =>
     <!-- RAW DATA -->
     <div class="list">
       <div v-for="(s, i) in recent" :key="i">
-        Flow: {{ s.flow }} | Pressure: {{ s.pressure }}
+        <div v-for="d in s.data" :key="d.t">
+          Flow: {{ d.flow }} | Pressure: {{ d.pressure }}
+        </div>
       </div>
     </div>
   </div>
@@ -57,13 +71,25 @@ const peakFlow = computed(() =>
   background: #0f172a;
   min-height: 100vh;
   color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+  max-width: none;
 }
+
 
 .cards {
   display: flex;
   gap: 16px;
   margin-bottom: 20px;
+
+  justify-content: center;
+  flex-wrap: wrap;
 }
+
 
 .chart {
   background: #1e293b;

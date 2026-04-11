@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import AuthPage from "@/views/auth/Auth.vue";
-import Dashboard from "@/views/dashboard/Dashboard.vue";
 import Devices from "@/views/devices/Devices.vue";
+import DeviceTracking from "@/views/tracking/DeviceTracking.vue";
 
 const routes = [
   { path: "/", 
@@ -13,12 +13,13 @@ const routes = [
   },
   {
     path: "/tracking",
-    component: Dashboard,
+    component: DeviceTracking,
   },
   {
     path: "/devices",
     component: Devices,
   },
+  { path: "/tracking/:id", name: "tracking", component: DeviceTracking }
 ];
 
 export const router = createRouter({
