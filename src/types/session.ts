@@ -13,7 +13,8 @@ export interface Metrics {
 
 export interface Session {
   userId: string;
-  createdAt: Date;
+  deviceId: string;
+  createdAt: number;
   metrics: Metrics;
   data: DataPoint[];
 }

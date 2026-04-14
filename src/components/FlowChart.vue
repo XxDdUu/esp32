@@ -7,23 +7,29 @@ import {
   LinearScale,
   CategoryScale,
 } from "chart.js";
+import { computed } from "vue";
 
 Chart.register(LineElement, PointElement, LinearScale, CategoryScale);
 
 const props = defineProps<{
   dataPoints: number[];
+  color?: string;
+  bgColor?: string;
 }>();
 
-const chartData = {
+const chartData = computed(() => ({
   labels: props.dataPoints.map((_, i) => i),
   datasets: [
     {
+      label: "Flow",
       data: props.dataPoints,
-      borderColor: "#38bdf8",
+      borderColor: props.color || "#38bdf8",
+      backgroundColor: props.bgColor || "rgba(56, 189, 248, 0.2)",
       tension: 0.3,
+      fill: true,
     },
   ],
-};
+}));
 </script>
 
 <template>

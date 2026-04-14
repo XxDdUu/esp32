@@ -59,6 +59,8 @@ hosting/.cache
 /.firebase/
 /emulator-ui/
 firebase.ts
+src/firebase/firebase.ts
+
 
 # Environment files (local configs)
 /.env.*

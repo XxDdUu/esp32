@@ -8,7 +8,6 @@ export const useSessions = () => {
   onMounted(() => {
     listenSessions((data) => {
       sessions.value = data;
-      console.log("Sessions updated:", sessions.value);
     });
   });
 
