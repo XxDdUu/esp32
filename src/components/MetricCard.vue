@@ -1,14 +1,15 @@
 <script setup lang="ts">
 defineProps<{
   title: string;
-  value: number;
+  value?: number;
+  stringValue?: string;
 }>();
 </script>
 
 <template>
   <div class="card">
     <h3>{{ title }}</h3>
-    <p class="value">{{ value.toFixed(2) }}</p>
+    <p class="value">{{ stringValue || value.toFixed(2) }}</p>
   </div>
 </template>
 

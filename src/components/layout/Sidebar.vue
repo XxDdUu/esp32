@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useUiStore } from "@/stores/ui";
+import { transition } from "@vueuse/core";
+import type { Session } from "@/types/session";
+import { CalendarDays, Calendar, CalendarRange } from "lucide-vue-next";
 
+const ui = useUiStore();
 
-const props = defineProps<{
-  sessions: any[];
+interface Props {
+  sessions: Session[];
   show: boolean;
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  sessions: () => [],  // ✅ default applied e
+  show: false,
+});
 
 const emit = defineEmits<{
   (e: "close"): void;
@@ -58,16 +68,23 @@ const select = (type: any, key: string) => {
 </script>
 
 <template>
-    <Sheet :open="show" @update:open="(v) => emit('update:open', v)">
+  <transition name="slide">
+    <Sheet 
+      :open="ui.sidebarOpen"
+      @update:open="ui.closeSidebar()"
+    >
     <SheetContent side="left" class="w-72 bg-slate-900 text-white">
       
       <SheetHeader>
-        <SheetTitle>📊 Analytics</SheetTitle>
+        <SheetTitle class="text-white">📊 Analytics</SheetTitle>
       </SheetHeader>
 
       <!-- DAY -->
       <div class="mt-4 mb-6">
-        <h3 class="text-sm text-slate-400 mb-2">Day</h3>
+          <div class="flex items-center ml-3 gap-2">
+          <CalendarDays class="w-4 h-4 text-slate-400" />
+          <h3 class="text-sm text-white">Day</h3>
+        </div>
         <div
           v-for="d in days"
           :key="d.key"
@@ -81,7 +98,10 @@ const select = (type: any, key: string) => {
 
       <!-- MONTH -->
       <div class="mb-6">
-        <h3 class="text-sm text-slate-400 mb-2">Month</h3>
+          <div class="flex items-center ml-3 gap-2">
+        <Calendar class="w-4 h-4 text-slate-400" />
+        <h3 class="text-sm text-white">Month</h3>
+        </div>
         <div
           v-for="m in months"
           :key="m.key"
@@ -95,7 +115,10 @@ const select = (type: any, key: string) => {
 
       <!-- YEAR -->
       <div>
-        <h3 class="text-sm text-slate-400 mb-2">Year</h3>
+          <div class="flex items-center ml-3 gap-2">
+        <CalendarRange class="w-4 h-4 text-slate-400" />
+        <h3 class="text-sm text-white">Year</h3>
+        </div>
         <div
           v-for="y in years"
           :key="y.key"
@@ -106,8 +129,27 @@ const select = (type: any, key: string) => {
           <span class="text-xs text-slate-400">{{ y.count }}</span>
         </div>
       </div>
-
     </SheetContent>
   </Sheet>
+  </transition>
 </template>
-<style scoped></style>
+<style scoped>
+
+.slide-enter-from {
+  transform: translateX(-100%);
+}
+.slide-enter-to {
+  transform: translateX(0);
+}
+.slide-leave-from {
+  transform: translateX(0);
+}
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+</style>

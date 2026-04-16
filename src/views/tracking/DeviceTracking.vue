@@ -1,11 +1,51 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import { useSessions } from "@/composables/useSessions";
 
 import MetricCard from "@/components/MetricCard.vue";
 import FlowChart from "@/components/FlowChart.vue";
 import { useRoute } from "vue-router";
 import Sidebar from "@/components/layout/Sidebar.vue";
+import { getCurrentUser, onUserChanged } from "@/firebase/auth";
+import { listenDevices } from "@/firebase/device.service";
+import type { Device } from "@/types/session";
+import type { User } from "firebase/auth";
+
+const devices = ref<Device[]>([]);
+const loading = ref(true);
+const user = ref<User | null>(null);
+let unsubscribeDevices: (() => void) | null = null;
+
+
+onMounted(() => {
+  user.value = getCurrentUser();
+
+  onUserChanged((u) => {
+    user.value = u;
+
+    if (unsubscribeDevices) unsubscribeDevices();
+    if (user.value) {
+      unsubscribeDevices = listenDevices(user.value.uid, (list) => {
+        devices.value = list;
+        loading.value = false;
+      });
+    } else {
+      devices.value = [];
+    }
+  });
+
+  if (user.value) {
+    unsubscribeDevices = listenDevices(user.value.uid, (list) => {
+      devices.value = list;
+      loading.value = false;
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  if (unsubscribeDevices) unsubscribeDevices();
+});
+
 const { sessions } = useSessions();
 
 const route = useRoute();
@@ -18,23 +58,9 @@ const filteredSessions = computed(() => {
   return sessions.value.filter(s => s.deviceId === deviceId.value);
 });
 
-const showSidebar = ref(false);
-
-const openSidebar = () => {
-  if (!deviceId.value) return;
-  showSidebar.value = true;
-};
-
-const closeSidebar = () => {
-  showSidebar.value = false;
-};
-
-const toggleSidebar = () => {
-  if (!deviceId.value) return;
-  showSidebar.value = !showSidebar.value;
-};
-
-
+const device = computed(() =>
+  devices.value.find(d => d.id === deviceId.value)
+);
 
 
 const recent = computed(() =>
@@ -74,15 +100,18 @@ const peakFlow = computed(() => {
   return Math.max(...arr.map(p => p.y));
 }); 
 
+const lastSeenText = computed(() =>
+  device.value?.lastSeen
+    ? new Date(device.value.lastSeen).toLocaleString()
+    : "N/A"
+)
+
+
 
 </script>
 
 <template>
-  <Sidebar
-    :sessions="sessions"
-    :show="showSidebar"
-    @close="showSidebar = false"
-  />
+  <Sidebar />
   <div class="container">
     <h1 class="text-5xl font-bold mb-4">📊 Lung Dashboard 仪表板</h1>
 
@@ -91,6 +120,7 @@ const peakFlow = computed(() => {
       <MetricCard title="Avg Flow" :value="avgFlow" />
       <MetricCard title="Peak Flow" :value="peakFlow" />
       <MetricCard title="Data Points" :value="recent.length" />
+      <MetricCard title="Device's Last Seen" :stringValue="lastSeenText" />
     </div>
 
     <!-- CHART -->
@@ -108,7 +138,7 @@ const peakFlow = computed(() => {
     <div class="list">
       <div v-for="s in recent" :key="s.createdAt">
         <div v-for="d in s.data" :key="d.t">
-          Flow: {{ d.flow }} | Pressure: {{ d.pressure }}
+          Flow: {{ d.flow }} | Pressure: {{ d.pressure }} | Time: {{ new Date(s.createdAt + d.t * 1000).toLocaleString() }}
         </div>
       </div>
     </div>

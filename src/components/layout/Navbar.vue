@@ -8,6 +8,7 @@ import { listenDevices } from "@/firebase/device.service";
 import type { Device } from "@/types/session";
 import { getStatus, getStatusColor } from "@/utils/device";
 import { Menu, X } from "lucide-vue-next";
+import { useUiStore } from "@/stores/ui";
 
 const route = useRoute();
 const router = useRouter();
@@ -16,7 +17,7 @@ const loading = ref(true);
 const user = ref<User | null>(null);
 let unsubscribeDevices: (() => void) | null = null;
 const selectedDeviceId = computed(() => route.params.id as string | undefined);
-const emit = defineEmits(["toggleSidebar"]);
+const ui = useUiStore();
 
 const selectedDevice = computed(() =>
   devices.value.find(d => d.id === selectedDeviceId.value)
@@ -88,11 +89,11 @@ const handleLogout = async () => {
       </div>
         <button
           v-if="selectedDevice"
-          @click="$emit('toggleSidebar')"
+          @click="ui.toggleSidebar()"
           class="px-2 py-1 text-sm border border-slate-500 rounded-md
                 text-slate-300 hover:bg-slate-800 transition"
         >
-            <Menu v-if="!sidebarOpen" clasgit s="w-4 h-4" />
+            <Menu v-if="!ui.sidebarOpen" class="w-4 h-4" />
           <X v-else class="w-4 h-4" />
         </button>
     </div>  
