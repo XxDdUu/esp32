@@ -1,10 +1,7 @@
 <template>
-  <div class="dropdown" ref="dropdownRef">
+  <div class="dropdown " ref="dropdownRef">
     <!-- Trigger -->
-    <button @click="toggle">
-      <slot name="trigger">Menu</slot>
-    </button>
-
+       <slot name="trigger" :toggle="toggle"></slot>
     <!-- Menu -->
     <div
       v-if="open"
@@ -22,7 +19,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { provide } from "vue";
 
 const slots = defineSlots<{
-  trigger?: () => any,
+  trigger(props: { toggle: () => void }): any
   default?: () => any
 }>()
 
@@ -30,6 +27,10 @@ const props = defineProps({
   align: {
     type: String,
     default: "left", 
+  },
+  class: {
+    type: String,
+    default: "",
   },
 });
 
@@ -43,11 +44,10 @@ const actualAlign = ref<"left" | "right">("left");
 
 const close = () => {
   open.value = false;
-};
+};  
 
 const toggle = async () => {
   open.value = !open.value;
-
   if (open.value) {
     await nextTick();
     updatePosition();
@@ -93,7 +93,7 @@ provide("closeDropdown", close);
 <style scoped>
 .dropdown {
   position: relative;
-  display: inline-block;
+  display: block;
 }
 
 .dropdown-trigger {

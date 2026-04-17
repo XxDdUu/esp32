@@ -1,5 +1,5 @@
 <template>
-  <div class="item" @click="handleClick">
+  <div class="item hover:bg-emerald-900" @click="handleClick">
     <slot />
   </div>
 </template>
@@ -26,7 +26,5 @@ const handleClick = () => {
   transition: 0.2s;
 }
 
-.item:hover {
-  background: #f3f3f3;
-}
+
 </style>

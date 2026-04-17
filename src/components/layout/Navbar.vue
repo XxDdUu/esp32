@@ -65,6 +65,7 @@ onBeforeUnmount(() => {
 const showDevicesDropdown = ref(false);
 
 
+
 const go = (path: string) => router.push(path);
 
 onMounted(() => {
@@ -104,8 +105,9 @@ const handleLogout = async () => {
       <template v-if="isTrackingPage">
         <Dropdown align="right">
           <!-- Trigger -->
-          <template #trigger>
+          <template #trigger="{ toggle }">
             <button
+                @click="toggle"
               class="px-3 py-1.5 border border-slate-500 rounded-md
                     text-slate-200
                     hover:bg-slate-800 hover:border-slate-400
@@ -135,12 +137,13 @@ const handleLogout = async () => {
             Loading...
           </div>
 
-          <DropdownItem
+          <DropdownItem 
             v-for="d in devices"
             :key="d.id + d.key"
             @click="selectDevice(d.id)"
+            class="bg-[#0f172a] border-accent border rounded-md last:mb-0"
           >
-            <div class="flex flex-col">
+            <div class="flex flex-col ">
               
               <!-- Device ID -->
               <span class="font-medium">

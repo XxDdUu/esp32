@@ -28,3 +28,4 @@ export const listenSessions = (callback: (data: Session[]) => void) => {
     callback(list);
   });
 };
+
