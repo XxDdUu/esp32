@@ -200,8 +200,9 @@ const handleLogout = async () => {
       <!-- USER -->
       <div v-else>
         <Dropdown align="right">  
-          <template #trigger>
+          <template #trigger = "{ toggle }" >
             <img
+              @click="toggle"
               :src="user.photoURL || undefined"
               class="w-8 h-8 rounded-full cursor-pointer border"
             />

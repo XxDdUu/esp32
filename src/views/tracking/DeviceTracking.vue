@@ -10,12 +10,15 @@ import { getCurrentUser, onUserChanged } from "@/firebase/auth";
 import { listenDevices } from "@/firebase/device.service";
 import type { Device } from "@/types/session";
 import type { User } from "firebase/auth";
+import { useSessionFilterStore } from "@/stores/sessionFilter";
 
+const route = useRoute();
 const devices = ref<Device[]>([]);
 const loading = ref(true);
 const user = ref<User | null>(null);
 let unsubscribeDevices: (() => void) | null = null;
 
+const filterStore = useSessionFilterStore();
 
 onMounted(() => {
   user.value = getCurrentUser();
@@ -46,38 +49,48 @@ onBeforeUnmount(() => {
   if (unsubscribeDevices) unsubscribeDevices();
 });
 
-const { sessions } = useSessions();
-
-const route = useRoute();
-
 const deviceId = computed(() => route.params.id as string | undefined);
+const { filteredSessions, selectedSession } = useSessions(deviceId);
 
-const filteredSessions = computed(() => {
-  if (!deviceId.value) return [];
 
-  return sessions.value.filter(s => s.deviceId === deviceId.value);
+
+const latestSessionGlobal = computed(() => {
+  if (!filteredSessions.value.length) return null;
+
+  return [...filteredSessions.value].sort(
+    (a, b) => b.createdAt - a.createdAt
+  )[0];
 });
 
+
+
+const currentSession = computed(() => {
+  if (filterStore.selectedDay) {
+    return selectedSession.value;
+  }
+
+  return latestSessionGlobal.value;
+});
 const device = computed(() =>
   devices.value.find(d => d.id === deviceId.value)
 );
 
 
-const recent = computed(() =>
-  [...filteredSessions.value]
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 50)
-);
 
-const chartData = computed(() =>
-  filteredSessions.value.flatMap(s =>
-    s.data.map(p => ({
-      x: s.createdAt + p.t * 1000,
-      y: p.flow,
-      z: p.pressure
-    }))
-  )
-);
+const recent = computed(() => {
+  if (!currentSession.value) return [];
+  return [currentSession.value];
+});
+
+const chartData = computed(() => {
+  if (!currentSession.value) return [];
+
+  return currentSession.value.data.map(p => ({
+    x: currentSession.value!.createdAt + p.t * 1000,
+    y: p.flow,
+    z: p.pressure
+  }));
+});
 
 const flowData = computed(() =>
   chartData.value.map(p => p.y)
@@ -105,9 +118,17 @@ const lastSeenText = computed(() =>
     ? new Date(device.value.lastSeen).toLocaleString()
     : "N/A"
 )
-
-
-
+const metricsChartData = computed(() => {
+  return filteredSessions.value
+    .sort((a, b) => a.createdAt - b.createdAt)
+    .map((s) => ({
+      time: new Date(s.createdAt).toLocaleTimeString(),
+      FEV1: s.metrics?.FEV1,
+      FVC: s.metrics?.FVC,
+      PEF: s.metrics?.PEF,
+      P_peak: s.metrics?.P_peak
+    }));
+});
 </script>
 
 <template>
@@ -134,6 +155,11 @@ const lastSeenText = computed(() =>
         <FlowChart :dataPoints="pressureData" color="#f87171" bgColor="rgba(248, 113, 113, 0.2)" />
       </div>
      </div>
+      <div class="chart w-full max-w-4xl">
+        <h1 class="font-bold text-center">FEV1, FVC, PEF, P_peak</h1>
+        <FlowChart :dataPoints="metricsChartData" :multiLine="true" />
+      </div>
+  
     <!-- RAW DATA -->
     <div class="list">
       <div v-for="s in recent" :key="s.createdAt">

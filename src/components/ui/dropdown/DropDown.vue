@@ -6,7 +6,7 @@
     <div
       v-if="open"
       ref="menuRef"
-      class="absolute mt-2 w-40 bg-white rounded-lg shadow-lg"
+      class="absolute mt-2 z-50 w-40 bg-white rounded-lg shadow-lg"
       :class="actualAlign === 'right' ? 'right-0' : 'left-0'"
     >
       <slot />

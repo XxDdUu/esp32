@@ -13,14 +13,15 @@ import type { Session } from "@/types/session";
 import { CalendarDays, Calendar, CalendarRange } from "lucide-vue-next";
 import { Dropdown, DropdownItem } from "@/components/ui/dropdown";
 import { useSessions } from "@/composables/useSessions";
+import { useSessionFilterStore } from "@/stores/sessionFilter";
 
-const { sessions } = useSessions();
+
 const ui = useUiStore();
 const route = useRoute();
 
 
 const deviceId = computed(() => route.params.id as string | undefined);
-
+const { sessions } = useSessions(deviceId);
 const filteredSessions = computed(() => {
   if (!deviceId.value) return [];
 
@@ -33,15 +34,12 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  sessions: () => [],  // ✅ default applied e
+  sessions: () => [],
   show: false,
 });
 
-const emit = defineEmits<{
-  (e: "close"): void;
-  (e: "select", payload: { type: "day" | "month" | "year"; key: string }): void;
-  (e: "update:open", open: boolean): void;
-}>();
+const filterStore = useSessionFilterStore();
+
 
 // ===== GROUP LOGIC =====
 const groupBy = (type: "day" | "month" | "year") => {
@@ -96,8 +94,10 @@ const days = computed(() => groupBy("day"));
 const months = computed(() => groupBy("month"));
 const years = computed(() => groupBy("year"));
 
-const select = (type: any, key: string) => {
-  emit("select", { type, key });
+const select = (type: "day" | "month" | "year", key: string) => {
+  if (type === "day") {
+    filterStore.setDay(key);
+  }
 };
 </script>
 
