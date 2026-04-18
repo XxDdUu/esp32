@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { getCurrentUser, onUserChanged, logout } from "@/firebase/auth";
 import type { User } from "firebase/auth";
@@ -9,6 +9,9 @@ import type { Device } from "@/types/session";
 import { getStatus, getStatusColor } from "@/utils/device";
 import { Menu, X } from "lucide-vue-next";
 import { useUiStore } from "@/stores/ui";
+import { useSessionFilterStore } from "@/stores/sessionFilter";
+import { useSessions } from "@/composables/useSessions";
+import SessionTimeline from "@/components/SessionTimeline.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +21,40 @@ const user = ref<User | null>(null);
 let unsubscribeDevices: (() => void) | null = null;
 const selectedDeviceId = computed(() => route.params.id as string | undefined);
 const ui = useUiStore();
+const filter = useSessionFilterStore();
+const { sessions } = useSessions(selectedDeviceId);
+
+const sessionsByDay = computed(() => {
+  if (!filter.selectedDay) return [];
+
+  return sessions.value
+    .filter((s) => {
+      const d = new Date(s.createdAt);
+
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+      return key === filter.selectedDay;
+    })
+    .sort((a, b) => a.createdAt - b.createdAt);
+});
+const sessionTimes = computed(() => {
+  return sessionsByDay.value.map((s) => ({
+    time: s.createdAt,
+    label: new Date(s.createdAt).toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  }));
+});
+
+const selectedTimeLabel = computed(() => {
+  if (!filter.selectedTime) return "--:--";
+
+  return new Date(filter.selectedTime).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+});
 
 const selectedDevice = computed(() =>
   devices.value.find(d => d.id === selectedDeviceId.value)
@@ -31,6 +68,19 @@ const selectDevice = (id: string) => {
   showDevicesDropdown.value = false;
   router.push(`/tracking/${id}`);
 };
+
+
+watch(
+  () => filter.selectedDay,
+  () => {
+    if (!sessionsByDay.value.length) return;
+
+    const latest = sessionsByDay.value[sessionsByDay.value.length - 1];
+    if (!latest) return;
+    filter.setTime(latest.createdAt);
+  }
+);
+
 
 onMounted(() => {
   user.value = getCurrentUser();
@@ -100,7 +150,48 @@ const handleLogout = async () => {
     </div>  
     <!-- RIGHT -->
     <div class="flex items-center gap-6">
+      <div
+      v-if="isTrackingPage && filter.selectedDay"
+      class="flex items-center gap-2"
+    >
+    <Dropdown align="right">
 
+      <!-- Trigger -->
+      <template #trigger="{ toggle }">
+        <button
+          @click="toggle"
+          class="flex items-center gap-2 text-sm text-slate-300 
+                hover:bg-slate-800 rounded-md px-3 py-1.5 transition"
+        >
+          <span>{{ selectedTimeLabel }}</span>
+        </button>
+      </template>
+
+      <!-- Content -->
+      <div class="p-3 bg-[#0f172a] rounded-md border border-accent">
+        <DropdownItem
+          v-for="s in sessionsByDay"
+          :key="s.createdAt"
+          @click="filter.setTime(s.createdAt)"
+          :class="[
+            'flex justify-between text-sm rounded-md',
+            filter.selectedTime === s.createdAt ? 'bg-blue-600' : ''
+          ]"
+        >
+          <span>
+            {{
+              new Date(s.createdAt).toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit"
+              })
+            }}
+          </span>
+          
+        </DropdownItem>
+
+      </div>
+    </Dropdown>
+  </div>
     <!-- TRACKING -->
       <template v-if="isTrackingPage">
         <Dropdown align="right">

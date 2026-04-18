@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, watch } from "vue";
 import {
   Sheet,
   SheetContent,
@@ -88,6 +88,23 @@ const groupBy = (type: "day" | "month" | "year") => {
       count: value.count,
     }));
 };
+const sessionsBySelectedDay = computed(() => {
+  if (!filterStore.selectedDay) return [];
+
+  return filteredSessions.value
+    .filter((s) => {
+      const d = new Date(s.createdAt);
+
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+
+      const key = `${year}-${month}-${day}`;
+
+      return key === filterStore.selectedDay;
+    })
+    .sort((a, b) => b.createdAt - a.createdAt); // mới nhất trước
+});
 
 
 const days = computed(() => groupBy("day"));
@@ -99,6 +116,31 @@ const select = (type: "day" | "month" | "year", key: string) => {
     filterStore.setDay(key);
   }
 };
+watch(
+  sessions,
+  () => {
+    if (!sessions.value.length) return;
+
+    const latest = [...sessions.value].sort(
+      (a, b) => b.createdAt - a.createdAt
+    )[0];
+
+    if (!latest) return;
+
+    const d = new Date(latest.createdAt);
+    const dayKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    if (! filterStore.selectedDay) {
+      filterStore.setDay(dayKey);
+    }
+
+    if (!filterStore.selectedTime) {
+      filterStore.setTime(latest.createdAt);
+    }
+  },
+  { immediate: true }
+);
+
 </script>
 
 <template>
