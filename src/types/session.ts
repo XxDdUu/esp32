@@ -10,6 +10,9 @@ export interface Metrics {
   PEF: number;
   P_peak: number;
 }
+export type MetricsChartPoint = Metrics & {
+  time: string;
+};
 
 export interface Session {
   userId: string;

@@ -31,7 +31,6 @@ export const listenSessions = (
         Object.entries(sessions).forEach(([sessionId, item]: any) => {
           const createdAt = item.createdAt;
 
-          // 👉 filter theo ngày (nếu có)
           if (from && createdAt < from) return;
           if (to && createdAt > to) return;
 
