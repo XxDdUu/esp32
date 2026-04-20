@@ -2,13 +2,17 @@
 import { loginWithGoogle } from "@/firebase/auth";
 import InputField from "@/components/ui/InputField.vue";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const email = ref("");
 
 const handleGoogleLogin = async () => {
   try {
     const user = await loginWithGoogle();
-    console.log("User:", user);
+    if (user) {
+      const router = useRouter();
+      router.push("/");
+    }
   } catch (err) {
     console.error(err);
   }
