@@ -9,7 +9,6 @@ import {
 import { useRoute } from "vue-router";
 import { useUiStore } from "@/stores/ui";
 import { transition } from "@vueuse/core";
-import type { Session } from "@/types/session";
 import { CalendarDays, Calendar, CalendarRange } from "lucide-vue-next";
 import { Dropdown, DropdownItem } from "@/components/ui/dropdown";
 import { useSessions } from "@/composables/useSessions";
@@ -28,15 +27,6 @@ const filteredSessions = computed(() => {
   return sessions.value.filter(s => s.deviceId === deviceId.value);
 });
 
-interface Props {
-  sessions: Session[];
-  show: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  sessions: () => [],
-  show: false,
-});
 
 const filterStore = useSessionFilterStore();
 

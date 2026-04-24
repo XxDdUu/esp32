@@ -326,6 +326,7 @@ const metricsChartData = computed(() => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
 .card {
   @apply rounded-xl p-5 text-white flex justify-between items-center shadow-lg 
          transition-all duration-200 hover:scale-[1.02] hover:shadow-xl;

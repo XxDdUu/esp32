@@ -11,7 +11,6 @@ import { Menu, X } from "lucide-vue-next";
 import { useUiStore } from "@/stores/ui";
 import { useSessionFilterStore } from "@/stores/sessionFilter";
 import { useSessions } from "@/composables/useSessions";
-import SessionTimeline from "@/components/SessionTimeline.vue";
 
 const route = useRoute();
 const router = useRouter();

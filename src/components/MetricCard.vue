@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <div class="card">
     <h3>{{ title }}</h3>
-    <p class="value">{{ stringValue || value.toFixed(2) }}</p>
+    <p class="value">{{ stringValue || value?.toFixed(2) }}</p>
   </div>
 </template>
 

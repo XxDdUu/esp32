@@ -72,8 +72,8 @@ const updatePosition = () => {
 
 
 // click outside
-const handleClickOutside = (e) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+const handleClickOutside = (e: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
     close();
   }
 };
