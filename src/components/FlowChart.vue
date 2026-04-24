@@ -8,14 +8,34 @@ import {
   CategoryScale,
   Filler,
 } from "chart.js";
-import { computed, ref, onMounted, nextTick } from "vue";
+import { computed, ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import type { MetricsChartPoint } from "@/types/session";
 
 Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Filler);
 
+const containerRef = ref<HTMLElement | null>(null);
 const chartRef = ref<any>(null);
 
+let observer: ResizeObserver;
 
+onMounted(() => {
+  observer = new ResizeObserver((entries) => {
+    const entry = entries[0];
+    if (!entry) return;
+
+    requestAnimationFrame(() => {
+      chartRef.value?.chart?.resize();
+    });
+  });
+
+  if (containerRef.value) {
+    observer.observe(containerRef.value);
+  }
+});
+
+onBeforeUnmount(() => {
+  observer?.disconnect();
+});
 
 const props = defineProps<{
   dataPoints?: number[];

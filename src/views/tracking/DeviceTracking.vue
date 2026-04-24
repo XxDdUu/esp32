@@ -133,124 +133,143 @@ const metricsChartData = computed(() => {
 </script>
 
 <template>
-  <Sidebar />
-  <div class="container">
-    <h1 class="text-5xl font-bold mb-4 text-center">📊 Lung Dashboard 仪表板</h1>
+  <div class="flex h-screen bg-slate-900 text-white overflow-hidden">
 
-    <!-- METRICS -->
-    <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="rounded-xl p-5 text-white bg-red-500 flex justify-between items-center shadow">
-      <div>
-        <p class="text-sm opacity-80">Avg Flow</p>
-        <h2 class="text-2xl font-bold">{{ avgFlow }}</h2>
-      </div>
-      <i class="text-3xl opacity-70">👤</i>
-    </div>
+    <!-- SIDEBAR -->
+    <Sidebar />
 
-    <div class="rounded-xl p-5 text-white bg-orange-400 flex justify-between items-center shadow">
-      <div>
-        <p class="text-sm opacity-80">Peak Flow</p>
-        <h2 class="text-2xl font-bold">{{ peakFlow }}</h2>
-      </div>
-      <i class="text-3xl opacity-70">📊</i>
-    </div>
+    <!-- MAIN -->
+    <div class="flex flex-col flex-1 min-w-0">
 
-    <div class="rounded-xl p-5 text-white bg-blue-400 flex justify-between items-center shadow">
-      <div>
-        <p class="text-sm opacity-80">Data Points</p>
-        <h2 class="text-2xl font-bold">{{ recent.length }}</h2>
-      </div>
-      <i class="text-3xl opacity-70">👥</i>
-    </div>
+      <!-- HEADER -->
+      <header class="h-14 px-4 flex items-center justify-between border-b border-white/10 backdrop-blur bg-white/5">
+        <h1 class="text-lg md:text-xl font-semibold">
+          📊 Lung Dashboard 仪表板
+        </h1>
+        <div class="text-xl">👤</div>
+      </header>
 
-    <div class="rounded-xl p-5 text-white bg-purple-500 flex justify-between items-center shadow">
-      <div>
-        <p class="text-sm opacity-80">Last Seen</p>
-        <h2 class="text-lg font-bold">{{ lastSeenText }}</h2>
-      </div>
-      <i class="text-3xl opacity-70">📄</i>
-    </div>
-  </div>
+      <!-- CONTENT -->
+      <main class="flex-1 min-h-0 p-4 flex flex-col gap-4 overflow-hidden">
 
+        <!-- METRICS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
-    <!-- CHART -->
-    <div class="flex-1 min-h-0">
-    <TagsArrowScroll class="h-full" :scrollAmount="1500">
+          <div class="card bg-linear-to-br from-red-500 to-red-600">
+            <div>
+              <p class="text-sm opacity-80">Avg Flow</p>
+              <h2 class="text-2xl font-bold">{{ avgFlow }}</h2>
+            </div>
+            <i class="text-3xl opacity-70">👤</i>
+          </div>
 
-      <!-- PAGE 1 -->
-      <div class="snap-start min-w-full shrink-0 h-full flex -mx-2">
-        
-        <div class="flex-1 h-full px-2">
-          <FlowChart :dataPoints="flowData" />
+          <div class="card bg-gradient-to-br from-orange-400 to-orange-500">
+            <div>
+              <p class="text-sm opacity-80">Peak Flow</p>
+              <h2 class="text-2xl font-bold">{{ peakFlow }}</h2>
+            </div>
+            <i class="text-3xl opacity-70">📊</i>
+          </div>
+
+          <div class="card bg-gradient-to-br from-blue-400 to-blue-500">
+            <div>
+              <p class="text-sm opacity-80">Data Points</p>
+              <h2 class="text-2xl font-bold">{{ recent.length }}</h2>
+            </div>
+            <i class="text-3xl opacity-70">👥</i>
+          </div>
+
+          <div class="card bg-gradient-to-br from-purple-500 to-purple-600">
+            <div>
+              <p class="text-sm opacity-80">Last Seen</p>
+              <h2 class="text-lg font-bold">{{ lastSeenText }}</h2>
+            </div>
+            <i class="text-3xl opacity-70">📄</i>
+          </div>
+
         </div>
 
-        <div class="flex-1 h-full px-2">
-          <FlowChart :dataPoints="pressureData" color="red" bgColor="rgb(255, 0, 0, 0.2)"/>
-        </div>
+        <!-- CHART SECTION -->
+        <div class="flex-1 min-h-0 rounded-xl border border-white/10 bg-white/5 backdrop-blur p-3 overflow-hidden">
 
-      </div>
+          <TagsArrowScroll class="h-full" :scrollAmount="1200">
 
-      <!-- PAGE 2 -->
-      <div class="snap-start min-w-full shrink-0 h-full flex gap-4">
+            <!-- PAGE 1 -->
+            <div class="snap-start min-w-full h-full flex flex-col xl:flex-row gap-4">
 
-      <!-- LEFT -->
-      <div class="flex-1 min-w-0 h-full rounded-xl p-4 
-                  border border-white/10 
-                  bg-white/5 backdrop-blur">
-        <FlowChart 
-          :dataObjects="metricsChartData" 
-          :dataKey="'FVC'" 
-          :multiLine="true" 
-        />
-      </div>
-
-      <!-- RIGHT -->
-        <div class="flex-1 min-w-0 h-full rounded-xl p-4 
-                    border border-white/10 
-                    bg-white/5 backdrop-blur">
-
-          <TagsArrowScroll axis="y" class="h-full" :scrollAmount="300">
-            
-            <div class="flex flex-col gap-4 min-h-full">
-              
-              <div class="rounded-xl p-5 text-white bg-[#38bdf8] flex justify-between items-center shadow">
-                <div>
-                  <p class="text-sm opacity-80">FEV1</p>
-                  <h2 class="text-2xl font-bold">
-                    {{ filteredSessions[0]?.metrics?.FEV1 || 0 }}
-                  </h2>
-                </div>
-                <i class="text-3xl opacity-70">📊</i>
+              <div class="flex-1 min-h-[250px]">
+                <FlowChart :dataPoints="flowData" />
               </div>
 
-              <div class="rounded-xl p-5 text-white bg-[#34d399] flex justify-between items-center shadow">
-                <div>
-                  <p class="text-sm opacity-80">FVC</p>
-                  <h2 class="text-2xl font-bold">
-                    {{ filteredSessions[0]?.metrics?.FVC || 0 }}
-                  </h2>
-                </div>
-                <i class="text-3xl opacity-70">📊</i>
+              <div class="flex-1 min-h-[250px]">
+                <FlowChart 
+                  :dataPoints="pressureData" 
+                  color="red" 
+                  bgColor="rgba(255,0,0,0.2)"
+                />
               </div>
 
-              <div class="rounded-xl p-5 text-white bg-[#fbbf24] flex justify-between items-center shadow">
-                <div>
-                  <p class="text-sm opacity-80">PEF</p>
-                  <h2 class="text-2xl font-bold">
-                    {{ filteredSessions[0]?.metrics?.PEF || 0 }}
-                  </h2>
-                </div>
-                <i class="text-3xl opacity-70">📊</i>
+            </div>
+
+            <!-- PAGE 2 -->
+            <div class="snap-start min-w-full h-full flex flex-col xl:flex-row gap-4">
+
+              <!-- LEFT -->
+              <div class="flex-1 min-h-[250px] rounded-xl p-4 border border-white/10 bg-white/5 backdrop-blur">
+                <FlowChart 
+                  :dataObjects="metricsChartData" 
+                  :dataKey="'FVC'" 
+                  :multiLine="true" 
+                />
               </div>
 
-              <div class="rounded-xl p-5 text-white bg-[#f87171] flex justify-between items-center shadow">
-                <div>
-                  <p class="text-sm opacity-80">P_peak</p>
-                  <h2 class="text-2xl font-bold">
-                    {{ filteredSessions[0]?.metrics?.P_peak || 0 }}
-                  </h2>
+              <!-- RIGHT -->
+              <div class="flex-1 min-h-[250px] rounded-xl p-4 border border-white/10 bg-white/5 backdrop-blur overflow-y-auto">
+
+                <div class="flex flex-col gap-4">
+
+                  <div class="card bg-[#38bdf8]">
+                    <div>
+                      <p class="text-sm opacity-80">FEV1</p>
+                      <h2 class="text-2xl font-bold">
+                        {{ filteredSessions[0]?.metrics?.FEV1 || 0 }}
+                      </h2>
+                    </div>
+                    <i class="text-3xl opacity-70">📊</i>
+                  </div>
+
+                  <div class="card bg-[#34d399]">
+                    <div>
+                      <p class="text-sm opacity-80">FVC</p>
+                      <h2 class="text-2xl font-bold">
+                        {{ filteredSessions[0]?.metrics?.FVC || 0 }}
+                      </h2>
+                    </div>
+                    <i class="text-3xl opacity-70">📊</i>
+                  </div>
+
+                  <div class="card bg-[#fbbf24]">
+                    <div>
+                      <p class="text-sm opacity-80">PEF</p>
+                      <h2 class="text-2xl font-bold">
+                        {{ filteredSessions[0]?.metrics?.PEF || 0 }}
+                      </h2>
+                    </div>
+                    <i class="text-3xl opacity-70">📊</i>
+                  </div>
+
+                  <div class="card bg-[#f87171]">
+                    <div>
+                      <p class="text-sm opacity-80">P_peak</p>
+                      <h2 class="text-2xl font-bold">
+                        {{ filteredSessions[0]?.metrics?.P_peak || 0 }}
+                      </h2>
+                    </div>
+                    <i class="text-3xl opacity-70">📊</i>
+                  </div>
+
                 </div>
-                <i class="text-3xl opacity-70">📊</i>
+
               </div>
 
             </div>
@@ -258,85 +277,57 @@ const metricsChartData = computed(() => {
           </TagsArrowScroll>
         </div>
 
+        <!-- TABLE -->
+        <div class="flex-1 min-h-0 rounded-xl border border-white/10 bg-white/5 backdrop-blur overflow-hidden">
+
+          <div class="h-full overflow-auto">
+            <table class="w-full text-sm">
+
+              <!-- HEADER -->
+              <thead class="sticky top-0 bg-slate-800/80 backdrop-blur z-10">
+                <tr>
+                  <th class="px-4 py-3 text-left">Time</th>
+                  <th class="px-4 py-3 text-left">Flow</th>
+                  <th class="px-4 py-3 text-left">Pressure</th>
+                </tr>
+              </thead>
+
+              <!-- BODY -->
+              <tbody>
+                <template v-for="s in recent" :key="s.createdAt">
+                  <tr
+                    v-for="d in s.data"
+                    :key="d.t"
+                    class="border-t border-white/10 hover:bg-white/5 transition"
+                  >
+                    <td class="px-4 py-2">
+                      {{ new Date(s.createdAt + d.t * 1000).toLocaleString() }}
+                    </td>
+
+                    <td class="px-4 py-2 text-cyan-400 font-medium">
+                      {{ d.flow }}
+                    </td>
+
+                    <td class="px-4 py-2 text-red-400">
+                      {{ d.pressure }}
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+
+            </table>
           </div>
-        </TagsArrowScroll>
+
+        </div>
+
+      </main>
     </div>
-    <!-- RAW DATA -->
-    <div class="mt-6 w-full overflow-x-auto">
-    <table class="w-full text-sm text-left border border-white/10 rounded-xl overflow-hidden">
-    
-    <!-- HEADER -->
-    <thead class="bg-white/10 text-white">
-      <tr>
-        <th class="px-4 py-3">Time</th>
-        <th class="px-4 py-3">Flow</th>
-        <th class="px-4 py-3">Pressure</th>
-      </tr>
-    </thead>
-
-    <!-- BODY -->
-    <tbody>
-      <template v-for="s in recent" :key="s.createdAt">
-        <tr
-          v-for="d in s.data"
-          :key="d.t"
-          class="border-t border-white/10 hover:bg-white/5 transition"
-        >
-          <td class="px-4 py-2">
-            {{ new Date(s.createdAt + d.t * 1000).toLocaleString() }}
-          </td>
-
-          <td class="px-4 py-2 font-medium text-cyan-400">
-            {{ d.flow }}
-          </td>
-
-          <td class="px-4 py-2 text-red-400">
-            {{ d.pressure }}
-          </td>
-        </tr>
-      </template>
-    </tbody>
-
-  </table>
-  </div>
   </div>
 </template>
 
 <style scoped>
-.container {
-  padding: 20px;
-  background: #0f172a;
-  min-height: 100vh;
-  color: white;
-
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-  max-width: none;  
-  height: 100vh;
-}
-
-
-.cards {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
-
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-
-.chart {
-  background: #1e293b;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.list {
-  max-height: 200px;
-  overflow-y: auto;
+.card {
+  @apply rounded-xl p-5 text-white flex justify-between items-center shadow-lg 
+         transition-all duration-200 hover:scale-[1.02] hover:shadow-xl;
 }
 </style>

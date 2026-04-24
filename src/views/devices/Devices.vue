@@ -91,66 +91,109 @@ const handleDeviceClick = (deviceId: string) => {
 </script>
 
 <template>
-  <div class="max-w-md mx-auto mt-10 space-y-4">
+  <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center px-4">
 
-    <h2 class="text-xl font-bold">Add ESP32 Device</h2>
+  <!-- FORM -->
+  <div class="w-full max-w-md mt-10 flex flex-col gap-4
+              bg-slate-800 border border-[#c084fc] 
+              p-6 rounded-xl shadow">
 
-    <InputField
-      v-model="deviceId"
-      label="Device ID"
-      placeholder="Device ID (e.g. esp32_001)"
-    />
+    <h2 class="text-xl font-bold text-[#c084fc]">
+      Add ESP32 Device
+    </h2>
 
-    <InputField
-      v-model="deviceKey"
-      label="Device Key"
-      placeholder="Device Key"
-    />
+    <div class="flex flex-col gap-3">
+      <InputField
+        v-model="deviceId"
+        label="Device ID"
+        placeholder="esp32_001"
+        bg-color="bg-slate-800"
+        focus-color="focus:ring-[#c084fc]"
+      />
+
+      <InputField
+        v-model="deviceKey"
+        label="Device Key"
+        placeholder="Device Key"
+        bg-color="bg-slate-800"
+        focus-color="focus:ring-[#c084fc]"
+      />
+    </div>
 
     <button
-        v-if="user"
+      v-if="user"
       @click="handleAddDevice"
-      class="w-full bg-blue-600 text-white py-2 rounded"
+      class="w-full bg-[#c084fc] hover:bg-[#a855f7] text-white py-2 rounded transition"
     >
       Add Device
     </button>
 
-    <p class="text-sm text-gray-500">{{ message }}</p>
-
+    <p class="text-sm text-slate-400">
+      {{ message }}
+    </p>
   </div>
-   <div class="max-w-2xl mx-auto mt-10">
 
-    <h2 class="text-xl font-bold mb-4">Your Devices</h2>
+  <!-- DEVICE LIST -->
+  <div class="w-full max-w-3xl mt-10 flex flex-col gap-4">
 
-    <div v-if="devices.length === 0">
+    <h2 class="text-xl font-bold text-white">
+      Your Devices
+    </h2>
+
+    <div v-if="devices.length === 0" class="text-slate-400">
       No devices yet 💀
     </div>
 
-    <div class="space-y-3">
+    <!-- LIST -->
+    <div class="flex flex-col gap-3">
+
       <div
         v-for="d in devices"
         :key="d.id"
-        class="flex justify-between items-center p-4 border rounded-lg bg-white shadow-sm cursor-pointer"
         @click="handleDeviceClick(d.id)"
+        class="flex justify-between items-center p-4 
+              border border-slate-700 
+              rounded-xl bg-slate-800 
+              hover:bg-slate-700 hover:scale-[1.01]
+              transition cursor-pointer"
       >
-        <div>
-          <div class="font-semibold">{{ d.id }}</div>
-          <div class="text-sm text-gray-500">
+        <!-- LEFT -->
+        <div class="flex flex-col gap-1">
+          <span class="font-semibold text-white">
+            {{ d.id }}
+          </span>
+
+          <span class="text-sm text-slate-400">
             Key: {{ d.key }}
-          </div>
-          <span v-if="getStatus(d.lastSeen) === 'online'">🟢 Online</span>
-        <span v-else-if="getStatus(d.lastSeen) === 'idle'">🟡 Idle</span>
-        <span v-else>🔴 Offline</span>
+          </span>
+
+          <span
+            class="text-xs font-semibold"
+            :class="{
+              'text-green-400': getStatus(d.lastSeen) === 'online',
+              'text-yellow-400': getStatus(d.lastSeen) === 'idle',
+              'text-red-400': getStatus(d.lastSeen) === 'offline'
+            }"
+          >
+            {{ getStatus(d.lastSeen) }}
+          </span>
         </div>
 
-        <button
-          @click.stop="handleDelete(d.id)"
-          class="text-red-500 hover:text-red-700"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
+        <!-- RIGHT -->
+        <div class="flex items-center gap-3">
 
+          <button
+            @click.stop="handleDelete(d.id)"
+            class="text-red-400 hover:text-red-300 transition text-sm"
+          >
+            Delete
+          </button>
+
+        </div>
+      </div>
+
+    </div>
   </div>
+
+</div>
 </template>
